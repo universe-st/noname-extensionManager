@@ -1,6 +1,7 @@
 <script>
 import {lib,game,ui,get,ai,_status} from '../../noname.js'
 import {ref,onMounted, handleError} from '../../game/vue.esm-browser.js';
+import { removeExtension } from './main.js';
 export default{
     setup(){
         let extensions = lib.config.extensions.slice(0);
@@ -19,6 +20,16 @@ export default{
         });
         let extensionList = ref(list);
         return {
+            removeExtension:(name)=>{
+                let conf = confirm(`你确定要删除扩展《${name}》吗？此操作会删除所有文件。`);
+                if(conf){
+                    game.removeExtension(name);
+                    if(!lib.config.extensions.includes(name)){
+                        let ext = extensionList.value.find((item)=>item.name == name);
+                        if(ext)extensionList.value.remove(ext);
+                    }
+                }
+            },
             swapExtension:(index1,index2)=>{
                 let valList = extensionList.value;
                 [valList[index1],valList[index2]] = [valList[index2],valList[index1]];
@@ -66,6 +77,9 @@ export default{
                 <td>
                     <img class="kzgj-image-button" @click="swapExtension(index,index+1)" v-show="index < extensionList.length-1" width="20" height="20" :src="imageDir+'direction_down.png'"></img>
                     <img class="kzgj-image-button" @click="swapExtension(index,index-1)" v-show="index > 0" width="20" height="20" :src="imageDir+'direction_up.png'"></img>
+                </td>
+                <td>
+                    <img class="kzgj-image-button" @click="removeExtension(extensionItem.name)" v-show="extensionItem.name !== '扩展管家'" width="20" height="20" :src="imageDir+'remove.png'"></img>
                 </td>
             </tr>
         </table>
